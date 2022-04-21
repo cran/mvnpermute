@@ -33,12 +33,12 @@
 ##
 
 #' Generate Permutation-based Multivariate Normal Data
-#' 
+#'
 #' Simulate new multivariate normal data sets with a specified covariance
 #' matrix by permutation. Permutations are done on a linear transformation
 #' of residuals that is guaranteed to be exchangeable when the original data
 #' are multivariate normally distributed.
-#' 
+#'
 #' This function takes multivariate normal data with known covariates
 #' and covariance matrix and generates "permutations" of this data that
 #' maintain the mean and covariance of the original data. The
@@ -51,7 +51,7 @@
 #' the original data; for example, you could estimate the null
 #' distribution of some test statistic while maintaining the (known)
 #' covariance of the data.
-#' 
+#'
 #' @references Abney M (2015) "Permutation testing in the presence of polygenic
 #'  variation." Genetic Epidemiology, in press.
 #' @references Abney M, Ober C, McPeek MS (2002). "Quantitative trait homozygosity
@@ -81,7 +81,7 @@
 
 mvnpermute <- function (y, X, S, nr, seed) {
     if(!missing(seed)) set.seed(seed)
-    
+
     ## Get the number of samples.
     n <- length(y)
 
@@ -101,14 +101,14 @@ mvnpermute <- function (y, X, S, nr, seed) {
     ## Note that the -1 in the formula indicates that the implicit
     ## intercept should not be included in the linear model. Then get the
     ## components of the linear model y <- U + E.
-    model <- lm(z ~ W - 1)
-    beta  <- coef(model)
-    u     <- drop(X %*% beta)  
-    e     <- resid(model)
+    model <- stats::lm(z ~ W - 1)
+    beta  <- stats::coef(model)
+    u     <- drop(X %*% beta)
+    e     <- stats::resid(model)
 
     ## Get the covariance matrix of the residuals, then the spectral
     ## decomposition of this covariance matrix. Take only the
-    ## eigenvectors associated with eigenvalue of 1.  
+    ## eigenvectors associated with eigenvalue of 1.
     sigma.mat <- diag(n) - W %*% solve(t(W) %*% W, t(W))
     sigma.eig <- eigen(sigma.mat)
     V1        <- sigma.eig$vectors[ , sigma.eig$values > 0.9]
@@ -122,7 +122,7 @@ mvnpermute <- function (y, X, S, nr, seed) {
     perms           <- matrix(nrow = n, ncol = nr)
     rownames(perms) <- rownames(y)
     colnames(perms) <- 1:nr
-        
+
     ## Repeat for each replicate to generate.
     for (i in 1:nr) {
 
@@ -137,4 +137,3 @@ mvnpermute <- function (y, X, S, nr, seed) {
     ## Output the result.
     return(perms)
 }
-
